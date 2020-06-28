@@ -8,7 +8,7 @@
 from gpiozero import LED
 from time import sleep
 
-print ('Program is starting ... ')
+print('Program is starting... ')
 
 led = LED(17)           # define LED pin according to BCM Numbering
 # led = LED("J8:11")     # BOARD Numbering

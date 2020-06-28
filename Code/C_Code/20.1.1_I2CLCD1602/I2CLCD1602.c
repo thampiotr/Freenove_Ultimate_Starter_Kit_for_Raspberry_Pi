@@ -11,8 +11,8 @@
 #include <lcd.h>
 #include <time.h>
 
-//#define pcf8574_address 0x27        // default I2C address of Pcf8574
-#define pcf8574_address 0x3F        // default I2C address of Pcf8574A
+#define pcf8574_address 0x27        // default I2C address of Pcf8574
+//#define pcf8574_address 0x3F        // default I2C address of Pcf8574A
 #define BASE 64         // BASE any number above 64
 //Define the output pins of the PCF8574, which are directly connected to the LCD1602 pin.
 #define RS      BASE+0

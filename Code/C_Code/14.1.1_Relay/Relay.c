@@ -54,6 +54,7 @@ int main(void)
 		}
 		digitalWrite(relayPin,relayState);
 		lastbuttonState = reading;
+		delay(1);
 	}
 
 	return 0;

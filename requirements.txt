@@ -1,0 +1,5 @@
+RPi.GPIO
+gpiozero~=1.5.1
+
+smbus~=1.1.post2
+setuptools~=44.0.0
