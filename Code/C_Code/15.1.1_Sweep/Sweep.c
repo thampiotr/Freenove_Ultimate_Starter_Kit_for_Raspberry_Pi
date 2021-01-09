@@ -7,8 +7,8 @@
 #include <wiringPi.h>
 #include <softPwm.h>
 #include <stdio.h>
-#define OFFSET_MS 3     //Define the unit of servo pulse offset: 0.1ms
-#define SERVO_MIN_MS 5+OFFSET_MS        //define the pulse duration for minimum angle of servo
+#define OFFSET_MS 10     //Define the unit of servo pulse offset: 0.1ms
+#define SERVO_MIN_MS 5-OFFSET_MS        //define the pulse duration for minimum angle of servo
 #define SERVO_MAX_MS 25+OFFSET_MS       //define the pulse duration for maximum angle of servo
 
 #define servoPin    1       //define the GPIO number connected to servo
@@ -44,12 +44,12 @@ int main(void)
     while(1){
         for(i=SERVO_MIN_MS;i<SERVO_MAX_MS;i++){  //make servo rotate from minimum angle to maximum angle
             servoWriteMS(servoPin,i);
-            delay(10);
+            delay(100);
         }
         delay(500);
         for(i=SERVO_MAX_MS;i>SERVO_MIN_MS;i--){  //make servo rotate from maximum angle to minimum angle
             servoWriteMS(servoPin,i);
-            delay(10);
+            delay(100);
         }
         delay(500);
     }

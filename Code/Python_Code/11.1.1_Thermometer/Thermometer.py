@@ -8,42 +8,73 @@
 import RPi.GPIO as GPIO
 import time
 import math
-from ADCDevice import *
 
-adc = ADCDevice() # Define an ADCDevice class object
+import smbus
+
+
+class PCF8591:
+    def __init__(self):
+        self.cmd = 0x40  # The default command for PCF8591 is 0x40.
+        self.address = 0x48  # 0x48 is the default i2c address for PCF8591 Module.
+        self.bus = smbus.SMBus(1)
+
+    def analogRead(self, chn):  # PCF8591 has 4 ADC input pins, chn:0,1,2,3
+        value = self.bus.read_byte_data(self.address, self.cmd + chn)
+        value = self.bus.read_byte_data(self.address, self.cmd + chn)
+        return value
+
+    def analogWrite(self, value):  # write DAC value
+        self.bus.write_byte_data(self.address, self.cmd, value)
+
+    def close(self):
+        self.bus.close()
+
+
+global adc
+
 
 def setup():
     global adc
-    if(adc.detectI2C(0x48)): # Detect the pcf8591.
-        adc = PCF8591()
-    elif(adc.detectI2C(0x4b)): # Detect the ads7830
-        adc = ADS7830()
-    else:
-        print("No correct I2C address found, \n"
-        "Please use command 'i2cdetect -y 1' to check the I2C address! \n"
-        "Program Exit. \n");
-        exit(-1)
-        
+    adc = PCF8591()
+
+
+def celsius_to_kelvin(c):
+    return 273.15 + c
+
+
+def kelvin_to_celsius(k):
+    return k - 273.15
+
+
 def loop():
     while True:
-        value = adc.analogRead(0)        # read ADC value A0 pin
-        voltage = value / 255.0 * 3.3        # calculate voltage
-        Rt = 10 * voltage / (3.3 - voltage)    # calculate resistance value of thermistor
-        tempK = 1/(1/(273.15 + 25) + math.log(Rt/10)/3950.0) # calculate temperature (Kelvin)
-        tempC = tempK -273.15        # calculate temperature (Celsius)
-        print ('ADC Value : %d, Voltage : %.2f, Temperature : %.2f'%(value,voltage,tempC))
+        value = adc.analogRead(0)  # read ADC value A0 pin
+        U_in = 3.3
+        R_2 = 10_000
+        B = 3950
+        R_1 = 10_000
+        T_1 = celsius_to_kelvin(25)
+
+        V_t = value / 255.0 * U_in
+
+        R_t = (R_2 * V_t) / (U_in - V_t)
+
+        T_2 = 1 / (1 / B * math.log(R_t / R_1) + 1 / T_1)
+        T_2_C = kelvin_to_celsius(T_2)
+
+        print('ADC Value : %5.d, Voltage : %5.2f, Temperature : %5.2f' % (value, V_t, T_2_C), end="\r")
         time.sleep(0.01)
+
 
 def destroy():
     adc.close()
     GPIO.cleanup()
-    
+
+
 if __name__ == '__main__':  # Program entrance
-    print ('Program is starting ... ')
+    print('Program is starting ... ')
     setup()
     try:
         loop()
-    except KeyboardInterrupt: # Press ctrl-c to end the program.
+    except KeyboardInterrupt:  # Press ctrl-c to end the program.
         destroy()
-        
-    
